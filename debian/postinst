@@ -22,6 +22,14 @@ case "$1" in
         /var/lib/nmexec/venv/bin/python -m uv pip install -U tmp/nmexec*.whl
         rm -rf tmp/nmexec*.whl
 
+        # Create shared symlink for yolo9 so other services can access it
+        YOLO9_SRC="/var/lib/nmexec/venv/lib/python3.11/site-packages/yolo9"
+        YOLO9_LINK="/usr/share/nmexec/yolov9"
+        mkdir -p "$(dirname "$YOLO9_LINK")"
+        if [ -d "$YOLO9_SRC" ] && [ ! -L "$YOLO9_LINK" ]; then
+            ln -sf "$YOLO9_SRC" "$YOLO9_LINK"
+        fi
+
         chown -R nmexec:nmexec /var/lib/nmexec
 
         if command -v supervisorctl >/dev/null 2>&1; then
