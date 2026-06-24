@@ -1,4 +1,4 @@
-nmexec (1.0.7) stable; urgency=medium
+nmexec (1.0.8) stable; urgency=medium
 
   * Add shared symlink for yolo9 in postinst to enable access from other services
   * Create /usr/share/nmexec/yolov9 symlink pointing to nmexec venv yolo9 package

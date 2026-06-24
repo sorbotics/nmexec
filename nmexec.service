@@ -3,7 +3,7 @@ Description=Network Model Executor
 After=network.target
 
 [Service]
-ExecStart=/var/lib/nmexec/venv/bin/nmexec
+ExecStart=nmexec
 Restart=always
 User=nmexec
 Group=nmexec

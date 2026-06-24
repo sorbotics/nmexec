@@ -23,12 +23,10 @@ case "$1" in
         rm -rf tmp/nmexec*.whl
 
         # Create shared symlink for yolo9 so other services can access it
-        YOLO9_SRC="/var/lib/nmexec/venv/lib/python3.11/site-packages/yolo9"
-        YOLO9_LINK="/usr/share/nmexec/yolov9"
-        mkdir -p "$(dirname "$YOLO9_LINK")"
-        if [ -d "$YOLO9_SRC" ] && [ ! -L "$YOLO9_LINK" ]; then
-            ln -sf "$YOLO9_SRC" "$YOLO9_LINK"
-        fi
+        ln -s -f "/var/lib/nmexec/venv/bin/nmexec" /usr/local/bin/nmexec
+        ln -s -f "/var/lib/nmexec/venv/bin/yolo9_train_dual" /usr/local/bin/yolo9_train_dual
+        ln -s -f "/var/lib/nmexec/venv/bin/yolo9_detect" /usr/local/bin/yolo9_detect
+        ln -s -f "/var/lib/nmexec/venv/bin/yolo9_val_dual" /usr/local/bin/yolo9_val_dual
 
         chown -R nmexec:nmexec /var/lib/nmexec
 
