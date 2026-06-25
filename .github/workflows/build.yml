@@ -1,0 +1,187 @@
+name: Build Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      push_images:
+        description: "Push Docker image to ACR"
+        required: true
+        default: "false"
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-22.04
+
+    env:
+      CI: "true"
+      CI_PROJECT_DIR: ${{ github.workspace }}
+      CI_COMMIT_SHA: ${{ github.sha }}
+      CI_COMMIT_REF_NAME: ${{ github.ref_name }}
+      CI_COMMIT_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+      CI_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      CI_PROJECT_NAME: ${{ github.event.repository.name }}
+      CI_PROJECT_PATH: ${{ github.repository }}
+      CI_PROJECT_URL: ${{ github.server_url }}/${{ github.repository }}
+      HOME: /home/runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Debian packaging tools
+        run: |
+          apt-get update
+          apt-get install -y dpkg-dev fakeroot jq git software-properties-common lrzip libmbedtls-dev gcc
+          add-apt-repository ppa:deadsnakes/ppa
+          apt-get install -yy python3.11 python3.11-venv python3.11-dev python3.11-distutils devscripts equivs python3-pip dos2unix
+
+      - name: Validate required files
+        run: |
+          set -e
+          test -f deb_build.sh
+          test -d debian
+
+      - name: Ensure build script is executable
+        run: chmod +x deb_build.sh
+
+      - name: Build Debian package
+        env:
+          CI_PROJECT_DIR: ${{ github.workspace }}
+          HOME: /home/runner
+        run: ./deb_build.sh
+
+      - name: List generated packages
+        run: ls -lah *.deb
+
+      - name: Upload Debian package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nmexec-deb-package
+          path: "*.deb"
+          if-no-files-found: error
+
+  build-rpm:
+    runs-on: ubuntu-22.04
+
+    container:
+      image: registry.access.redhat.com/ubi9/python-311
+      options: --user 0
+
+    env:
+      CI: "true"
+      CI_PROJECT_DIR: ${{ github.workspace }}
+      CI_COMMIT_SHA: ${{ github.sha }}
+      CI_COMMIT_REF_NAME: ${{ github.ref_name }}
+      CI_COMMIT_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+      CI_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      CI_PROJECT_NAME: ${{ github.event.repository.name }}
+      CI_PROJECT_PATH: ${{ github.repository }}
+      CI_PROJECT_URL: ${{ github.server_url }}/${{ github.repository }}
+      HOME: /github/home
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install RPM build dependencies
+        run: |
+          yum --disableplugin=subscription-manager install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
+            && yum update -y \
+            && yum --disableplugin=subscription-manager install -y openssh-clients rpmlint rpm-build dpkg fakeroot jq gcc \
+            && python3.11 -m pip install --upgrade pip wheel Cython uv
+
+      - name: Validate required files
+        run: |
+          set -eux
+          test -f rpm_build.sh
+          test -f rpm/nmexec.spec
+
+      - name: Make build script executable
+        run: chmod +x rpm_build.sh
+
+      - name: Build RPM package
+        run: |
+          set -euxo pipefail
+          ./rpm_build.sh
+
+      - name: List generated RPMs
+        run: ls -lah *.rpm
+
+      - name: Upload RPM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nmexec-rpm-package
+          path: "*.rpm"
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-22.04
+    needs: [build-deb, build-rpm]
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: nmexec-*
+          merge-multiple: true
+
+      - name: Generate global checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          find . -type f \( -name "*.deb" -o -name "*.rpm" \) -exec sha256sum {} \; > checksums.txt
+          cat checksums.txt
+
+      - name: Prepare release variables
+        id: relvars
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/*.deb
+            dist/**/*.rpm
+            dist/checksums.txt
+          generate_release_notes: false
+          body: |
+            ## Packages
+
+            This release includes:
+            - Debian package (`.deb`)
+            - RPM package (`.rpm`)
+            - `checksums.txt` with SHA256 hashes
+
+            ### Install on Debian/Ubuntu
+            ```bash
+            VERSION="${{ steps.relvars.outputs.version }}"
+            curl -fL -o /tmp/nmexec_${VERSION}_amd64.deb https://github.com/${{ github.repository }}/releases/download/${{ steps.relvars.outputs.tag }}/nmexec_${VERSION}_amd64.deb
+            sudo apt install -y /tmp/nmexec_${VERSION}_amd64.deb
+            ```
+
+            ### Install on RHEL9
+            ```bash
+            VERSION="${{ steps.relvars.outputs.version }}"
+            curl -fL -o /tmp/nmexec-${VERSION}.rpm https://github.com/${{ github.repository }}/releases/download/${{ steps.relvars.outputs.tag }}/nmexec-${VERSION}.el9.x86_64.rpm
+            sudo dnf install -y /tmp/nmexec-${VERSION}.rpm
+            ```
+
+            ### Verify integrity
+            ```bash
+            curl -fL -O https://github.com/${{ github.repository }}/releases/download/${{ steps.relvars.outputs.tag }}/checksums.txt
+            sha256sum -c checksums.txt
+            ```

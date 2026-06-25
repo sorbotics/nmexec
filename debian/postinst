@@ -3,6 +3,10 @@
 
 set -e
 
+PACKAGE="nmexec"
+VENV_PATH="/var/lib/nmexec/venv"
+VENV_TARBALL="/usr/share/sde_venvs/$PACKAGE.tar.gz"
+
 case "$1" in
     configure)
         # Create nmexec group if it doesn't exist
@@ -15,18 +19,16 @@ case "$1" in
         fi
 
         mkdir -p /var/lib/nmexec
-        if [ ! -d /var/lib/nmexec/venv ]; then
-            python3.11 -m venv /var/lib/nmexec/venv
-        fi
-        /var/lib/nmexec/venv/bin/pip install --upgrade uv
-        /var/lib/nmexec/venv/bin/python -m uv pip install -U tmp/nmexec*.whl
-        rm -rf tmp/nmexec*.whl
+        rm -rf "$VENV_PATH"
+        mkdir -p "$VENV_PATH"
+        tar -zxf "$VENV_TARBALL" -C "$VENV_PATH"
+        rm -f "$VENV_TARBALL"
 
         # Create shared symlink for yolo9 so other services can access it
-        ln -s -f "/var/lib/nmexec/venv/bin/nmexec" /usr/local/bin/nmexec
-        ln -s -f "/var/lib/nmexec/venv/bin/yolo9_train_dual" /usr/local/bin/yolo9_train_dual
-        ln -s -f "/var/lib/nmexec/venv/bin/yolo9_detect" /usr/local/bin/yolo9_detect
-        ln -s -f "/var/lib/nmexec/venv/bin/yolo9_val_dual" /usr/local/bin/yolo9_val_dual
+        ln -s -f "$VENV_PATH/bin/nmexec" /usr/local/bin/nmexec
+        ln -s -f "$VENV_PATH/bin/yolo9_train_dual" /usr/local/bin/yolo9_train_dual
+        ln -s -f "$VENV_PATH/bin/yolo9_detect" /usr/local/bin/yolo9_detect
+        ln -s -f "$VENV_PATH/bin/yolo9_val_dual" /usr/local/bin/yolo9_val_dual
 
         chown -R nmexec:nmexec /var/lib/nmexec
 

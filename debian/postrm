@@ -3,11 +3,23 @@
 
 set -e
 
+VENV_PATH="/var/lib/nmexec/venv"
+
 case "$1" in
     remove|purge)
+        rm -rf "$VENV_PATH"
+        rm -f /usr/local/bin/nmexec
+        rm -f /usr/local/bin/yolo9_train_dual
+        rm -f /usr/local/bin/yolo9_detect
+        rm -f /usr/local/bin/yolo9_val_dual
+        userdel nmexec || true
+        groupdel nmexec || true
+
         if command -v supervisorctl >/dev/null 2>&1; then
-            supervisorctl reread
-            supervisorctl update
+            supervisorctl reread || true
+            supervisorctl update || true
+        else
+            systemctl daemon-reload || true
         fi
     ;;
 
