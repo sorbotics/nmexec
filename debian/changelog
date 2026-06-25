@@ -1,3 +1,9 @@
+nmexec (1.0.9) stable; urgency=medium
+
+  * Add tensorboard as explicit dependency (required by yolo9 loggers)
+
+ -- Luis Enrique Dalmau Coopat <ldalmau@sorba.ai>  Wed, 25 Jun 2026 16:00:00 -0400
+
 nmexec (1.0.8) stable; urgency=medium
 
   * Add shared symlink for yolo9 in postinst to enable access from other services
