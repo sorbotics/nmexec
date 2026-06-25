@@ -1,3 +1,9 @@
+nmexec (1.0.11) stable; urgency=medium
+
+  * Version bump to trigger CI pipeline
+
+ -- Luis Enrique Dalmau Coopat <ldalmau@sorba.ai>  Fri, 26 Jun 2026 12:00:00 -0400
+
 nmexec (1.0.10) stable; urgency=medium
 
   * Add tensorboard as explicit dependency (required by yolo9 loggers)
