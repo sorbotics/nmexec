@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nmexec"
-version = "1.0.8"
+version = "1.0.9"
 description = "Network Model Executor Allows to process data over the network"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "psutil",
     "opencv-python",
-    "yolo9>=1.0.11"
+    "yolo9>=1.0.11",
+    "tensorboard"
 ]
 
 [project.scripts]
