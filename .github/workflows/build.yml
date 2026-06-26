@@ -33,10 +33,10 @@ jobs:
 
       - name: Install Debian packaging tools
         run: |
-          apt-get update
-          apt-get install -y dpkg-dev fakeroot jq git software-properties-common lrzip libmbedtls-dev gcc
-          add-apt-repository ppa:deadsnakes/ppa
-          apt-get install -yy python3.11 python3.11-venv python3.11-dev python3.11-distutils devscripts equivs python3-pip dos2unix
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev fakeroot jq git software-properties-common lrzip libmbedtls-dev gcc
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get install -yy python3.11 python3.11-venv python3.11-dev python3.11-distutils devscripts equivs python3-pip dos2unix
 
       - name: Validate required files
         run: |
