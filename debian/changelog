@@ -1,4 +1,4 @@
-nmexec (1.0.13) stable; urgency=medium
+nmexec (1.0.14) stable; urgency=medium
 
   * Add tensorboard as explicit dependency (required by yolo9 loggers)
 

@@ -25,6 +25,7 @@ tar -zcf "$STAGING_DIR/$PACKAGE.tar.gz" -C "$VENV_PATH" .
 rm -rf "$VENV_PATH"
 rm -rf dist
 
+mk-build-deps -i -r debian/control
 debuild -b -us -uc
 mv ../*.deb .
 
