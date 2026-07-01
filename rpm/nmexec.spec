@@ -9,7 +9,9 @@ Summary:        Network Model Executor
 BuildArch:      x86_64
 
 License:        MIT
-Source0:        %{name}-%{version}.tar.gz
+Source0:        %{name}.tar.gz
+Source1:        nmexec.service
+Source2:        nmexec.conf
 
 Requires:       python3.11
 
@@ -21,7 +23,7 @@ Requires:       python3.11
 Network Model Executor Allows to process data over the network
 
 %prep
-%setup -q
+:
 
 %build
 :
@@ -32,9 +34,9 @@ mkdir -p $RPM_BUILD_ROOT/usr/share/sde_venvs
 mkdir -p $RPM_BUILD_ROOT/etc/systemd/system
 mkdir -p $RPM_BUILD_ROOT/etc/supervisor/conf.d
 
-cp %{pyname}.tar.gz $RPM_BUILD_ROOT/usr/share/sde_venvs/
-cp nmexec.service $RPM_BUILD_ROOT/etc/systemd/system/
-cp nmexec.conf $RPM_BUILD_ROOT/etc/supervisor/conf.d/
+cp %{SOURCE0} $RPM_BUILD_ROOT/usr/share/sde_venvs/%{pyname}.tar.gz
+cp %{SOURCE1} $RPM_BUILD_ROOT/etc/systemd/system/nmexec.service
+cp %{SOURCE2} $RPM_BUILD_ROOT/etc/supervisor/conf.d/nmexec.conf
 
 %files
 /usr/share/sde_venvs/%{pyname}.tar.gz

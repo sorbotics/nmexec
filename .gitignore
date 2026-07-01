@@ -181,3 +181,4 @@ debian/nmexec.substvars
 debian/*.debhelper
 debian-files
 equivs.*
+*.rpm
