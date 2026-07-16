@@ -182,3 +182,4 @@ debian/*.debhelper
 debian-files
 equivs.*
 *.rpm
+*.deb

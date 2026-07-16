@@ -5,7 +5,8 @@ set -e
 PY_INTERPRETER="python3.11"
 PACKAGE=$(awk -F'"' '/^name = / { print $2; exit }' pyproject.toml)
 VENV_PATH="/var/lib/nmexec/venv"
-STAGING_DIR="debian-files/usr/share/sde_venvs"
+STAGING_DIR="debian-files/var/lib/nmexec"
+MODELS_DIR="yoloModels"
 
 rm -rf debian-files
 rm -rf "$VENV_PATH"
@@ -21,6 +22,7 @@ mkdir -p "$STAGING_DIR"
 "$VENV_PATH/bin/python" -m uv pip install -U dist/*.whl
 
 tar -zcf "$STAGING_DIR/$PACKAGE.tar.gz" -C "$VENV_PATH" .
+cp -a "$MODELS_DIR" "$STAGING_DIR/"
 
 rm -rf "$VENV_PATH"
 rm -rf dist

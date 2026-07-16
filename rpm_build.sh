@@ -10,6 +10,7 @@ RPM_BUILD_DIR=$EXEC_DIR/rpmbuild
 PY_INTERPRETER="python3.11"
 PACKAGE=$(awk -F'"' '/^name = / { print $2; exit }' pyproject.toml)
 VENV_PATH="/var/lib/nmexec/venv"
+MODELS_DIR="yoloModels"
 
 export UV_NO_CACHE=1
 
@@ -32,6 +33,7 @@ mkdir -p "$RPM_BUILD_DIR/SRPMS"
 "$VENV_PATH/bin/python" -m uv pip install -U dist/*.whl
 
 tar -zcf "$RPM_BUILD_DIR/SOURCES/$PACKAGE.tar.gz" -C "$VENV_PATH" .
+tar -zcf "$RPM_BUILD_DIR/SOURCES/$MODELS_DIR.tar.gz" "$MODELS_DIR"
 cp nmexec.service "$RPM_BUILD_DIR/SOURCES/"
 cp nmexec.conf "$RPM_BUILD_DIR/SOURCES/"
 cp "rpm/$RPM_NAME.spec" "$RPM_BUILD_DIR/SPECS/"

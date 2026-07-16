@@ -12,6 +12,7 @@ License:        MIT
 Source0:        %{name}.tar.gz
 Source1:        nmexec.service
 Source2:        nmexec.conf
+Source3:        yoloModels.tar.gz
 
 Requires:       python3.11
 
@@ -30,16 +31,18 @@ Network Model Executor Allows to process data over the network
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr/share/sde_venvs
+mkdir -p $RPM_BUILD_ROOT/var/lib/nmexec
 mkdir -p $RPM_BUILD_ROOT/etc/systemd/system
 mkdir -p $RPM_BUILD_ROOT/etc/supervisor/conf.d
 
-cp %{SOURCE0} $RPM_BUILD_ROOT/usr/share/sde_venvs/%{pyname}.tar.gz
+cp %{SOURCE0} $RPM_BUILD_ROOT/var/lib/nmexec/%{pyname}.tar.gz
+tar -zxf %{SOURCE3} -C $RPM_BUILD_ROOT/var/lib/nmexec
 cp %{SOURCE1} $RPM_BUILD_ROOT/etc/systemd/system/nmexec.service
 cp %{SOURCE2} $RPM_BUILD_ROOT/etc/supervisor/conf.d/nmexec.conf
 
 %files
-/usr/share/sde_venvs/%{pyname}.tar.gz
+/var/lib/nmexec/%{pyname}.tar.gz
+/var/lib/nmexec/yoloModels
 /etc/systemd/system/nmexec.service
 /etc/supervisor/conf.d/nmexec.conf
 
@@ -59,8 +62,8 @@ fi
 mkdir -p /var/lib/nmexec
 rm -rf /var/lib/nmexec/venv
 mkdir -p /var/lib/nmexec/venv
-tar -zxf /usr/share/sde_venvs/%{pyname}.tar.gz -C /var/lib/nmexec/venv
-rm -f /usr/share/sde_venvs/%{pyname}.tar.gz
+tar -zxf /var/lib/nmexec/%{pyname}.tar.gz -C /var/lib/nmexec/venv
+rm -f /var/lib/nmexec/%{pyname}.tar.gz
 
 # Create shared symlink for yolo9 so other services can access it
 ln -s -f "/var/lib/nmexec/venv/bin/nmexec" /usr/local/bin/nmexec

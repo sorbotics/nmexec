@@ -5,7 +5,7 @@ set -e
 
 PACKAGE="nmexec"
 VENV_PATH="/var/lib/nmexec/venv"
-VENV_TARBALL="/usr/share/sde_venvs/$PACKAGE.tar.gz"
+VENV_TARBALL="/var/lib/nmexec/$PACKAGE.tar.gz"
 
 case "$1" in
     configure)
