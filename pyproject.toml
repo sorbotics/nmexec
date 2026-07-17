@@ -12,7 +12,7 @@ dependencies = [
     "setuptools<82",
     "psutil",
     "opencv-python",
-    "yolo9>=1.0.11",
+    "yolo9>=1.0.12",
     "tensorboard",
     "Pillow<=9.5.0",
     "numpy<2.0",
