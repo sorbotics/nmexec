@@ -14,7 +14,9 @@ Source1:        nmexec.service
 Source2:        nmexec.conf
 Source3:        yoloModels.tar.gz
 
+BuildRequires:  bsdtar
 Requires:       python3.11
+Requires(post): bsdtar
 
 %global pyname nmexec
 %global program nmexec
@@ -36,7 +38,7 @@ mkdir -p $RPM_BUILD_ROOT/etc/systemd/system
 mkdir -p $RPM_BUILD_ROOT/etc/supervisor/conf.d
 
 cp %{SOURCE0} $RPM_BUILD_ROOT/var/lib/nmexec/%{pyname}.tar.gz
-tar -zxf %{SOURCE3} -C $RPM_BUILD_ROOT/var/lib/nmexec
+bsdtar -zxf %{SOURCE3} -C $RPM_BUILD_ROOT/var/lib/nmexec
 cp %{SOURCE1} $RPM_BUILD_ROOT/etc/systemd/system/nmexec.service
 cp %{SOURCE2} $RPM_BUILD_ROOT/etc/supervisor/conf.d/nmexec.conf
 
@@ -62,7 +64,7 @@ fi
 mkdir -p /var/lib/nmexec
 rm -rf /var/lib/nmexec/venv
 mkdir -p /var/lib/nmexec/venv
-tar -zxf /var/lib/nmexec/%{pyname}.tar.gz -C /var/lib/nmexec/venv
+bsdtar -zxf /var/lib/nmexec/%{pyname}.tar.gz -C /var/lib/nmexec/venv
 rm -f /var/lib/nmexec/%{pyname}.tar.gz
 
 # Create shared symlink for yolo9 so other services can access it
