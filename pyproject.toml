@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nmexec"
-version = "1.0.17"
+version = "1.0.18"
 description = "Network Model Executor Allows to process data over the network"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,6 +23,7 @@ dependencies = [
 nmexec = "nmexec.__main__:main"
 yolo9_train_dual = "nmexec.__main__:train_dual"
 yolo9_detect = "nmexec.__main__:detect"
+yolo9_detect_dual = "nmexec.__main__:detect_dual"
 yolo9_val_dual = "nmexec.__main__:val_dual"
 
 

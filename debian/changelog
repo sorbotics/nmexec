@@ -1,3 +1,9 @@
+nmexec (1.0.18) stable; urgency=medium
+
+  * Add yolo9_detect_dual entry point (yolo9 detect_dual) that reads the main head of dual-head (DualDDetect) weights; yolo9_detect is unchanged
+
+ -- Luis Enrique Dalmau Coopat <ldalmau@sorba.ai>  Fri, 16 Oct 2026 12:00:00 -0400
+
 nmexec (1.0.17) stable; urgency=medium
 
   * Add tensorboard as explicit dependency (required by yolo9 loggers)

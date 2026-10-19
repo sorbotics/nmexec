@@ -71,6 +71,7 @@ rm -f /var/lib/nmexec/%{pyname}.tar.gz
 ln -s -f "/var/lib/nmexec/venv/bin/nmexec" /usr/local/bin/nmexec
 ln -s -f "/var/lib/nmexec/venv/bin/yolo9_train_dual" /usr/local/bin/yolo9_train_dual
 ln -s -f "/var/lib/nmexec/venv/bin/yolo9_detect" /usr/local/bin/yolo9_detect
+ln -s -f "/var/lib/nmexec/venv/bin/yolo9_detect_dual" /usr/local/bin/yolo9_detect_dual
 ln -s -f "/var/lib/nmexec/venv/bin/yolo9_val_dual" /usr/local/bin/yolo9_val_dual
 
 chown -R nmexec:nmexec /var/lib/nmexec
@@ -120,6 +121,7 @@ if [ "$1" -eq 0 ]; then
     rm -f /usr/local/bin/nmexec
     rm -f /usr/local/bin/yolo9_train_dual
     rm -f /usr/local/bin/yolo9_detect
+    rm -f /usr/local/bin/yolo9_detect_dual
     rm -f /usr/local/bin/yolo9_val_dual
 fi
 
