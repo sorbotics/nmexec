@@ -2,7 +2,7 @@
 
 set -e
 
-PY_INTERPRETER="python3.11"
+PY_INTERPRETER="${PY_INTERPRETER:-python3.11}"
 PACKAGE=$(awk -F'"' '/^name = / { print $2; exit }' pyproject.toml)
 VENV_PATH="/var/lib/nmexec/venv"
 STAGING_DIR="debian-files/var/lib/nmexec"
@@ -28,7 +28,8 @@ rm -rf "$VENV_PATH"
 rm -rf dist
 
 mk-build-deps -i -r debian/control
-debuild -b -us -uc
+# debuild scrubs the environment: pass the interpreter on to debian/rules (Depends)
+debuild --set-envvar=PY_INTERPRETER="$PY_INTERPRETER" -b -us -uc
 mv ../*.deb .
 
 exit 0

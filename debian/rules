@@ -2,6 +2,12 @@
 
 export DH_VERBOSE = 1
 
+# Interpreter the venv shipped in the package was built with (see deb_build.sh, same
+# variable as rpm_build.sh). It becomes the python Depends of the package, e.g.
+# `PY_INTERPRETER=python3.14 ./deb_build.sh` for Ubuntu 26.04 (only 3.14).
+# Build-Depends cannot take substvars: edit it in debian/control when changing this.
+PY_INTERPRETER ?= python3.11
+
 %:
 	dh $@
 
@@ -12,3 +18,6 @@ override_dh_auto_clean:
 
 override_dh_auto_build:
 	:
+
+override_dh_gencontrol:
+	dh_gencontrol -- -Vnmexec:Python=$(notdir $(PY_INTERPRETER))
