@@ -28,6 +28,7 @@ case "$1" in
         ln -s -f "$VENV_PATH/bin/nmexec" /usr/local/bin/nmexec
         ln -s -f "$VENV_PATH/bin/yolo9_train_dual" /usr/local/bin/yolo9_train_dual
         ln -s -f "$VENV_PATH/bin/yolo9_detect" /usr/local/bin/yolo9_detect
+        ln -s -f "$VENV_PATH/bin/yolo9_detect_dual" /usr/local/bin/yolo9_detect_dual
         ln -s -f "$VENV_PATH/bin/yolo9_val_dual" /usr/local/bin/yolo9_val_dual
 
         chown -R nmexec:nmexec /var/lib/nmexec

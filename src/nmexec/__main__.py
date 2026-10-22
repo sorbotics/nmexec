@@ -4,6 +4,8 @@ from yolo9.train_dual import parse_opt as train_dual_parse_opt
 from yolo9.train_dual import main as train_dual_main
 from yolo9.detect import parse_opt as detect_parse_opt
 from yolo9.detect import main as detect_main
+from yolo9.detect_dual import parse_opt as detect_dual_parse_opt
+from yolo9.detect_dual import main as detect_dual_main
 from yolo9.val_dual import parse_opt as val_dual_parse_opt
 from yolo9.val_dual import main as val_dual_main
 
@@ -30,6 +32,11 @@ def train_dual():
 def detect():
     opt = detect_parse_opt()
     detect_main(opt)
+
+
+def detect_dual():
+    opt = detect_dual_parse_opt()
+    detect_dual_main(opt)
 
 
 def val_dual():
