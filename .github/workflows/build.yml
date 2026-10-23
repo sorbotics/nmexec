@@ -149,6 +149,26 @@ jobs:
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
+      - name: Split assets above the GitHub size limit
+        env:
+          # GitHub rejects release assets of 2 GiB (2147483648 bytes) or more
+          MAX_ASSET_BYTES: "2000000000"
+          PART_SIZE: 1000M
+        run: |
+          set -euo pipefail
+          cd dist
+          for f in *.deb *.rpm; do
+            [ -e "$f" ] || continue
+            if [ "$(stat -c %s "$f")" -ge "$MAX_ASSET_BYTES" ]; then
+              split -b "$PART_SIZE" "$f" "$f.part-"
+              rm "$f"
+              # whole-file hash is already in checksums.txt (verifies the reassembled file); add one per part
+              sha256sum "$f".part-* >> checksums.txt
+            fi
+          done
+          cat checksums.txt
+          ls -lah
+
       - name: Upload release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
@@ -156,32 +176,41 @@ jobs:
           files: |
             dist/**/*.deb
             dist/**/*.rpm
+            dist/**/*.part-*
             dist/checksums.txt
           generate_release_notes: false
+          # keep notes written by hand on the release instead of overwriting them
+          append_body: true
           body: |
             ## Packages
 
             This release includes:
-            - Debian package (`.deb`)
-            - RPM package (`.rpm`)
-            - `checksums.txt` with SHA256 hashes
+            - Debian package (`.deb`) and RPM package (`.rpm`). A package larger than 2 GiB is split in `.part-aa`, `.part-ab`, ... pieces (GitHub limit per asset); join them with `cat`
+            - `checksums.txt` with SHA256 hashes of the whole packages and of each piece
 
             ### Install on Debian/Ubuntu
             ```bash
             VERSION="${{ steps.relvars.outputs.version }}"
-            curl -fL -o /tmp/nmexec_${VERSION}_amd64.deb https://github.com/${{ github.repository }}/releases/download/${{ steps.relvars.outputs.tag }}/nmexec_${VERSION}_amd64.deb
-            sudo apt install -y /tmp/nmexec_${VERSION}_amd64.deb
+            # download the package, or all its pieces
+            curl -fsSL https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.relvars.outputs.tag }} \
+              | grep -o '"browser_download_url": *"[^"]*nmexec_[^"]*_all\.deb[^"]*"' | cut -d'"' -f4 | xargs -n1 curl -fLO
+            # join the pieces if there are any
+            [ -e nmexec_${VERSION}_all.deb ] || cat nmexec_${VERSION}_all.deb.part-* > nmexec_${VERSION}_all.deb
+            sudo apt install -y ./nmexec_${VERSION}_all.deb
             ```
 
             ### Install on RHEL9
             ```bash
             VERSION="${{ steps.relvars.outputs.version }}"
-            curl -fL -o /tmp/nmexec-${VERSION}.rpm https://github.com/${{ github.repository }}/releases/download/${{ steps.relvars.outputs.tag }}/nmexec-${VERSION}.el9.x86_64.rpm
-            sudo dnf install -y /tmp/nmexec-${VERSION}.rpm
+            curl -fsSL https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.relvars.outputs.tag }} \
+              | grep -o '"browser_download_url": *"[^"]*nmexec-[^"]*\.rpm[^"]*"' | cut -d'"' -f4 | xargs -n1 curl -fLO
+            [ -e nmexec-${VERSION}-1.el9.x86_64.rpm ] || cat nmexec-${VERSION}-1.el9.x86_64.rpm.part-* > nmexec-${VERSION}-1.el9.x86_64.rpm
+            sudo dnf install -y ./nmexec-${VERSION}-1.el9.x86_64.rpm
             ```
 
             ### Verify integrity
+            Run it in the directory with the downloaded files (after joining the pieces):
             ```bash
             curl -fL -O https://github.com/${{ github.repository }}/releases/download/${{ steps.relvars.outputs.tag }}/checksums.txt
-            sha256sum -c checksums.txt
+            sha256sum -c --ignore-missing checksums.txt
             ```
