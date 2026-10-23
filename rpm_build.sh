@@ -50,7 +50,7 @@ cp nmexec.service "$RPM_BUILD_DIR/SOURCES/"
 cp nmexec.conf "$RPM_BUILD_DIR/SOURCES/"
 cp "rpm/$RPM_NAME.spec" "$RPM_BUILD_DIR/SPECS/"
 
-rpmbuild -bb --define "_version $VERSION" --define "_rpmdir $RPM_BUILD_DIR/RPMS" --define "_sourcedir $RPM_BUILD_DIR/SOURCES" --define "_topdir $RPM_BUILD_DIR" "$RPM_BUILD_DIR/SPECS/$RPM_NAME.spec"
+rpmbuild -bb --define "_version $VERSION" --define "py_pkg $(basename "$PY_INTERPRETER")" --define "_rpmdir $RPM_BUILD_DIR/RPMS" --define "_sourcedir $RPM_BUILD_DIR/SOURCES" --define "_topdir $RPM_BUILD_DIR" "$RPM_BUILD_DIR/SPECS/$RPM_NAME.spec"
 
 mv "$RPM_BUILD_DIR"/RPMS/*/*.rpm "$EXEC_DIR/"
 

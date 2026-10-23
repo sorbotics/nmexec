@@ -1,3 +1,5 @@
+%{!?py_pkg: %global py_pkg python3.11}
+
 %if 0%{?_version:1}
 %define version %{_version}
 %endif
@@ -15,7 +17,7 @@ Source2:        nmexec.conf
 Source3:        yoloModels.tar.gz
 
 BuildRequires:  bsdtar
-Requires:       python3.11
+Requires:       %{py_pkg}
 Requires(post): bsdtar
 
 %global pyname nmexec
